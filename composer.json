@@ -1,0 +1,18 @@
+{
+    "name": "tvard/hexlet-slim-example",
+    "description": "test",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Tvard\\HexletSlimExample\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Tvard",
+            "email": "i.tvard@gmail.com"
+        }
+    ],
+    "require": {}
+}
