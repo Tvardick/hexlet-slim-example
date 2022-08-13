@@ -6,13 +6,12 @@ require __DIR__ . '/../vendor/autoload.php';
 use Slim\Factory\AppFactory;
 
 $app = AppFactory::create();
+
 $app->addErrorMiddleware(true, true, true);
 
 $app->get('/', function ($request, $response) {
     $response->getBody()->write('Welcome to Slim!');
     return $response;
-    // Благодаря пакету slim/http этот же код можно записать короче
-    // return $response->write('Welcome to Slim!');
 });
 $app->get("/users", function ($request, $response) {
     return $response->write("GET /users");
@@ -21,4 +20,12 @@ $app->get("/users", function ($request, $response) {
 $app->post("/users", function ($request, $response) {
     return $response->withStatus(302);
 });
+
+$app->get("/companies", function ($request, $response) use ($companies) {
+    $page = $request->getQueryParam('page', 1);
+    $per = $request->getQueryParam('per', 5);
+    $info = array_slice($companies, ($page - 1) * $per, $per);
+    return $response->write(json_encode($info));
+});
+
 $app->run();
