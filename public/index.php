@@ -13,7 +13,8 @@ $container->set('renderer', function () {
 });
 $companies = [];
 
-$users = App\Generator::generate(100);
+//$users = App\Generator::generate(100);
+$users = ['mike', 'mishel', 'adel', 'keks', 'kamila'];
 
 $app = AppFactory::createFromContainer($container);
 $app->addErrorMiddleware(true, true, true);
@@ -28,8 +29,10 @@ $app->get('/users/{id}', function ($request, $response, $agrs) use ($users) {
     return $this->get('renderer')->render($response, 'users/show.phtml', $params);
 });
 
-$app->get("/users", function ($request, $response) use ($users) {
-    $params = ['users' => $users];
+$app->get("/users", function ($request, $response, $agrs) use ($users) {
+    $term = $request->getQueryParam('term', "");
+    $filteredUsers = array_filter($users, fn($user) => str_contains($user, $term));
+    $params = ['users' => $filteredUsers, 'term' => $term];
     return $this->get('renderer')->render($response, 'users/index.phtml', $params);
 });
 
