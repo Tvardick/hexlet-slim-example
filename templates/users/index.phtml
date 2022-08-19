@@ -1,9 +1,6 @@
-<a href="/users">users_from_users_index </a>
-
 <form action="/users" method="get">
   <input type="search" required name="term" value="<?= htmlspecialchars($term) ?>">
 </form>
-
 <table>
 <?php foreach ($users as $user) : ?>
 <tr>

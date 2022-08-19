@@ -21,6 +21,8 @@
         "slim/php-view": "^3.1",
         "tightenco/collect": "*",
         "php-di/php-di": "^6.3",
-        "fzaninotto/faker": "*"
+        "fzaninotto/faker": "*",
+        "slim/twig-view": "^3.3",
+        "slim/flash": "^0.4.0"
     }
 }

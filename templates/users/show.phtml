@@ -1,11 +1,22 @@
 <a href="/users">users_from_users_show</a>
+<?php if (count($flash) !== 0) : ?>
+    <?php foreach ($flash as $messages) : ?>
+        <?php foreach ($messages as $message) : ?>
+            <li> <?= $message ?> </>
+        <?php endforeach ?>
+    <?php endforeach ?>
+<?php endif ?>
 
 <table>
-<?php foreach ($user as $key => $value) : ?>
-<tr>
-    <td>
-    <?= $key ?>: <?= $value ?>
-    </td>
-</tr>
+<?php foreach ($users as $user) : ?>
+    <div>
+    <?= "ID"?> : <?= $user['id'] ?>
+    </div>
+    <div>
+    <?= "Name"?> : <?= $user['nickname'] ?>
+    </div>
+    <div>
+    <?= "Email"?> : <?= $user['email'] ?>
+    </div>
 <?php endforeach ?>
 </table>
