@@ -4,6 +4,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use Slim\Factory\AppFactory;
 use DI\Container;
+use Slim\Middleware\MethodOverrideMiddleware;
 
 session_start();
 
@@ -25,6 +26,7 @@ $database = new App\Database();
 
 $app = AppFactory::createFromContainer($container);
 $app->addErrorMiddleware(true, true, true);
+$app->add(MethodOverrideMiddleware::class);
 
 $router = $app->getRouteCollector()->getRouteParser();
 
@@ -40,12 +42,23 @@ $app->get('/users/new', function ($request, $response) {
     return $this->get('renderer')->render($response, "users/new.phtml", $params);
 })->setName('addUser');
 
-$app->get('/users', function ($request, $response) use ($database) {
-    $users = $database->getUsers();
-    $messages = $this->get('flash')->getMessages();
-    $params = ["users" => $users, 'flash' => $messages];
-    return $this->get('renderer')->render($response, 'users/show.phtml', $params);
-})->setName('users');
+$app->patch('/users/{id}', function ($request, $response, $agrs) use ($router, $database) {
+    $id = $agrs['id'];
+    $user = $database->findUser($id);
+    $data = $request->getParsedBodyParam('user');
+    $validator = App\Validator();
+    $errors = $validator->validate($data);
+    if (count($errors) === 0) {
+        $user['nickname'] = $data['nickname'];
+        $user['email'] = $data['email'];
+        $this->get('flash')->addMessage('success', 'User has been updated');
+        $database->save($user);
+        $url = $router->urlFor("user", ['id' => $user['id']]);
+        return $response->withStatus(302)->withRedirect($url);
+    }
+    $params = ['user' => $data, 'errors' => $errors];
+    return $this->get('renderer')->render($response, 'users/edit.phtml', $params);
+});
 
 $app->get('/users/{id}', function ($request, $response, $agrs) use ($database) {
     $id = $agrs['id'];
@@ -59,8 +72,30 @@ $app->get('/users/{id}', function ($request, $response, $agrs) use ($database) {
     $params = ["users" => []];
     return $this
         ->get('renderer')
-        ->render($response->withStatus(404), 'users/show.phtml', $params);
+        ->render($response->write("Page not find")->withStatus(404), 'users/show.phtml', $params);
 })->setName('user');
+
+$app->get('/users/{id}/edit', function ($request, $response, $agrs) use ($database) {
+    $id = $agrs['id'];
+    $user = $database->findUser($id);
+    $params = [
+        'user' => $user,
+        'errors' => []
+    ];
+    return $this
+        ->get('renderer')
+        ->render($response, "/users/edit.phtml", $params);
+})->setName('edit_user');
+
+$app->get('/users', function ($request, $response) use ($database) {
+    $users = $database->getUsers();
+    $page = $request->getQueryParam('page', 1);
+    $per = $request->getQueryParam('per', 5);
+    $info = array_slice($users, ($page - 1) * $per, $per);
+    $messages = $this->get('flash')->getMessages();
+    $params = ["users" => $info, 'flash' => $messages, 'page' => $page];
+    return $this->get('renderer')->render($response, 'users/show.phtml', $params);
+})->setName('users');
 
 $app->post('/users', function ($request, $response) use ($router, $database) {
     $user = $request->getParsedBodyParam('user');
@@ -74,6 +109,7 @@ $app->post('/users', function ($request, $response) use ($router, $database) {
     $params = ['user' => $user, 'errors' => $errors];
     return $this->get('renderer')->render($response, "users/new.phtml", $params);
 });
+
 
 $app->get("/companies", function ($request, $response) use ($companies) {
     $page = $request->getQueryParam('page', 1);

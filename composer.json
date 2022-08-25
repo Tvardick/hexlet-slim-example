@@ -23,6 +23,7 @@
         "php-di/php-di": "^6.3",
         "fzaninotto/faker": "*",
         "slim/twig-view": "^3.3",
-        "slim/flash": "^0.4.0"
+        "slim/flash": "^0.4.0",
+        "symfony/var-dumper": "^6.1"
     }
 }

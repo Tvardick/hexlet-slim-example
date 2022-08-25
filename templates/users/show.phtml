@@ -1,4 +1,4 @@
-<a href="/users">users_from_users_show</a>
+<a href="/users?page=2&per=5">all_users with_pages</a>
 <?php if (count($flash) !== 0) : ?>
     <?php foreach ($flash as $messages) : ?>
         <?php foreach ($messages as $message) : ?>
@@ -10,13 +10,12 @@
 <table>
 <?php foreach ($users as $user) : ?>
     <div>
-    <?= "ID"?> : <?= $user['id'] ?>
+    Name : <a href="/users/<?= htmlspecialchars($user['id']) ?>"><?= htmlspecialchars($user['nickname']) ?></a>
     </div>
     <div>
-    <?= "Name"?> : <?= $user['nickname'] ?>
-    </div>
-    <div>
-    <?= "Email"?> : <?= $user['email'] ?>
+    Email : <?= htmlspecialchars($user['email']) ?>
     </div>
 <?php endforeach ?>
 </table>
+<a href="?page=<?= $page < 2 ? 1 : $page - 1 ?>">Prev</a>
+<a href="?page=<?= $page + 1 ?>">Next</a>

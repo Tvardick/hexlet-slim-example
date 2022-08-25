@@ -3,8 +3,8 @@
 <form action="/users" method="post">
   <div>
     <label>
-        Имя
-      <input type="text" name="user[nickname]" value="<?= htmlspecialchars($user['nickname']) ?>">
+        Имя :
+      <input type="text" required placeholder="Enter nickname" name="user[nickname]" value="<?= htmlspecialchars($user['nickname']) ?>"/>
     </label>
     <?php if (isset($errors['nickname'])): ?>
       <div><?= $errors['nickname'] ?></div>
@@ -12,8 +12,8 @@
   </div>
   <div>
     <label>
-        Email
-      <input type="email" required name="user[email]" value="<?= htmlspecialchars($user['email']) ?>">
+        Email : 
+      <input type="email" required placeholder="Enter email" name="user[email]" value="<?= htmlspecialchars($user['email']) ?>">
     </label>
     <?php if (isset($errors['email'])): ?>
       <div><?= $errors['email'] ?></div>
