@@ -34,6 +34,13 @@ $app->get('/', function ($request, $response) {
     return $this->get('renderer')->render($response, 'index.phtml');
 });
 
+$app->delete("/users/{id}", function ($request, $response, $agrs) use ($database, $router) {
+    $id = $agrs['id'];
+    $database->remove($id);
+    $this->get('flash')->addMessage('success', 'User has been deleted');
+    return $response->withRedirect($router->urlFor('users'));
+});
+
 $app->get('/users/new', function ($request, $response) {
     $params = [
         'user' => ['nickname' => '', 'email' => ''],
@@ -46,14 +53,14 @@ $app->patch('/users/{id}', function ($request, $response, $agrs) use ($router, $
     $id = $agrs['id'];
     $user = $database->findUser($id);
     $data = $request->getParsedBodyParam('user');
-    $validator = App\Validator();
+    $validator = new App\Validator();
     $errors = $validator->validate($data);
     if (count($errors) === 0) {
         $user['nickname'] = $data['nickname'];
         $user['email'] = $data['email'];
         $this->get('flash')->addMessage('success', 'User has been updated');
-        $database->save($user);
-        $url = $router->urlFor("user", ['id' => $user['id']]);
+        $database->update($user);
+        $url = $router->urlFor("users");
         return $response->withStatus(302)->withRedirect($url);
     }
     $params = ['user' => $data, 'errors' => $errors];

@@ -40,4 +40,21 @@ class Database
         $users = $this->getUsers();
         return collect($users)->firstWhere('id', $id);
     }
+
+    public function update($user): void
+    {
+        $users = $this->getUsers();
+        $users = array_merge($users, $user);
+        file_put_contents($this->path, $users);
+    }
+
+    public function remove(string $id): void
+    {
+        $users = $this->getUsers();
+        $removedUser = collect($users)
+            ->filter(fn($user) => $user['id'] !== (int) $id)
+            ->map(fn($user) => json_encode($user) . "\n")
+            ->all();
+        file_put_contents($this->path, implode("\n", $removedUser));
+    }
 }

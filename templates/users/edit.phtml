@@ -1,21 +1,11 @@
 <form action="/users/<?= htmlspecialchars($user['id'])?>" method="post">
-    <input type='hidden' method="_METHOD" value="PATCH">
-    <div>
-      <label>
-          Nickname :
-          <input type="text" name="user[nickname]" value="<?= htmlspecialchars($user['nickname'] ?? ''); ?>">
-      </label>
-      <?php if (isset($errors['name'])): ?>
-          <div><?= $errors['name'] ?></div>
-      <?php endif ?>
-    </div>
-      <label>
-          Email :
-          <input type="text" name="user[email]" value="<?= htmlspecialchars($user['email'] ?? ''); ?>">
-      </label>
-      <?php if (isset($errors['email'])): ?>
-          <div><?= $errors['email'] ?></div>
-      <?php endif ?>
-    </div>
+    <input type='hidden' name="_METHOD" value="PATCH">
+        <?php require '_form.phtml' ?>
     <input type="submit" value="Update">
+</form>
+
+
+<form action="/users/<?= $user['id'] ?>" method="post">
+  <input type="hidden" name="_METHOD" value="DELETE">
+    <input type="submit" value="DELETE">
 </form>
