@@ -6,8 +6,6 @@ use Slim\Factory\AppFactory;
 use DI\Container;
 use Slim\Middleware\MethodOverrideMiddleware;
 
-session_start();
-
 $container = new Container();
 
 $container->set('renderer', function () {
@@ -17,8 +15,6 @@ $container->set('renderer', function () {
 $container->set('flash', function () {
     return new \Slim\Flash\Messages();
 });
-
-$companies = [];
 
 $users = App\Generator::generate(100);
 
@@ -36,9 +32,11 @@ $app->get('/', function ($request, $response) {
 
 $app->delete("/users/{id}", function ($request, $response, $agrs) use ($database, $router) {
     $id = $agrs['id'];
-    $database->remove($id);
+    $users = $database->getUsers();
+    $filterUsers = collect($users)->filter(fn($user) => $user['id'] !== $id)->all();
+    $encodedUser = json_encode($filterUsers);
     $this->get('flash')->addMessage('success', 'User has been deleted');
-    return $response->withRedirect($router->urlFor('users'));
+    return $response->withRedirect($router->urlFor('users'))->withHeader('Set-Cookie', "users={$encodedUser}");
 });
 
 $app->get('/users/new', function ($request, $response) {
@@ -51,17 +49,22 @@ $app->get('/users/new', function ($request, $response) {
 
 $app->patch('/users/{id}', function ($request, $response, $agrs) use ($router, $database) {
     $id = $agrs['id'];
-    $user = $database->findUser($id);
     $data = $request->getParsedBodyParam('user');
     $validator = new App\Validator();
     $errors = $validator->validate($data);
     if (count($errors) === 0) {
-        $user['nickname'] = $data['nickname'];
-        $user['email'] = $data['email'];
+        $users = $database->getUsers();
+        $usersNew = collect($users)->map(function ($value) use ($id, $data) {
+            if ($value['id'] === $id) {
+                $value['nickname'] = $data['nickname'];
+                $value['email'] = $data['email'];
+            }
+            return $value;
+        })->all();
+        $encodedUser = json_encode($usersNew);
         $this->get('flash')->addMessage('success', 'User has been updated');
-        $database->update($user);
         $url = $router->urlFor("users");
-        return $response->withStatus(302)->withRedirect($url);
+        return $response->withStatus(302)->withRedirect($url)->withHeader('Set-Cookie', "users={$encodedUser}");
     }
     $params = ['user' => $data, 'errors' => $errors];
     return $this->get('renderer')->render($response, 'users/edit.phtml', $params);
@@ -74,7 +77,7 @@ $app->get('/users/{id}', function ($request, $response, $agrs) use ($database) {
         $params = ["user" => $user];
         return $this
             ->get('renderer')
-            ->render($response, 'users/show_user.phtml', $params);
+            ->render($response, 'users/edit.phtml', $params);
     }
     $params = ["users" => []];
     return $this
@@ -109,25 +112,16 @@ $app->post('/users', function ($request, $response) use ($router, $database) {
     $validator = new App\Validator();
     $errors = $validator->validate($user);
     if (count($errors) === 0) {
-        $database->create($user);
+        $users = json_decode($request->getCookieParam("users", json_encode([])), true);
+        $user['id'] = uniqid();
+        $users[] = $user;
+        $encodedUser = json_encode($users);
         $this->get('flash')->addMessage('success', 'Registration done');
-        return $response->withRedirect($router->urlFor('users'), 302);
+        $url = $router->urlFor('users');
+        return $response->withRedirect($url, 302)->withHeader('Set-Cookie', "users={$encodedUser}");
     }
     $params = ['user' => $user, 'errors' => $errors];
     return $this->get('renderer')->render($response, "users/new.phtml", $params);
 });
-
-
-$app->get("/companies", function ($request, $response) use ($companies) {
-    $page = $request->getQueryParam('page', 1);
-    $per = $request->getQueryParam('per', 5);
-    $info = array_slice($companies, ($page - 1) * $per, $per);
-    return $response->write(json_encode($info));
-})->setName('companies');
-
-$app->get("/courses/{id}", function ($request, $response, $agrs) {
-    $id = $agrs['id'];
-    return $response->write("courses - id -> {$id}");
-})->setName('course');
 
 $app->run();
