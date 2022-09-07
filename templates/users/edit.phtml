@@ -1,11 +1,11 @@
-<form action="/users/<?= $user['id'] ?>" method="post">
+<form action="/users/<?= $id ?>" method="post">
     <input type='hidden' name="_METHOD" value="PATCH">
         <?php require '_form.phtml' ?>
     <input type="submit" value="Update">
 </form>
 
 
-<form action="/users/<?= $user['id'] ?>" method="post">
+<form action="/users/<?= $id ?>" method="post">
   <input type="hidden" name="_METHOD" value="DELETE">
     <input type="submit" value="DELETE">
 </form>

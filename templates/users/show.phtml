@@ -1,4 +1,4 @@
-<a href="/users?page=2&per=5">all_users with_pages</a>
+<a href="/users/new">add user</a>
 <?php if (count($flash) !== 0) : ?>
     <?php foreach ($flash as $messages) : ?>
         <?php foreach ($messages as $message) : ?>
@@ -6,10 +6,13 @@
         <?php endforeach ?>
     <?php endforeach ?>
 <?php endif ?>
-<table>
-<?php foreach ($users as $user) : ?>
     <div>
-    Name : <a href="/users/<?= htmlspecialchars($user['id']) ?>"><?= htmlspecialchars($user['nickname']) ?></a>
+        <a href=/users/auth>Log In </a>
+    </div>
+<table>
+<?php foreach ($users as $key => $user) : ?>
+    <div>
+    Name : <a href="/users/<?= htmlspecialchars($key) ?>"><?= htmlspecialchars($user['nickname']) ?></a>
     </div>
     <div>
     Email : <?= htmlspecialchars($user['email']) ?>

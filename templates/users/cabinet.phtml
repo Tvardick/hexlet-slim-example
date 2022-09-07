@@ -1,0 +1,9 @@
+<a href="/users">all_users</a>
+<?php dump($user) ?>
+<br> Welcome <?= $user['nickname'] ?> </br>
+
+<form action="/users/<?= $id ?>/cabinet" method="post">
+  <input type="hidden" name="_METHOD" value="DELETE">
+    <input type="submit" value="Logout">
+</form>
+<br>nothing to view</br>

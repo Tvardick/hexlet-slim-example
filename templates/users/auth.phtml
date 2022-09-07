@@ -1,0 +1,15 @@
+<h1> Login </h1> 
+<a href="/users">all users</a>
+    <?php if (count($flash) !== 0) : ?>
+        <?php foreach ($flash as $messages) : ?>
+            <?php foreach ($messages as $message) : ?>
+                <li> <?= $message ?> </>
+            <?php endforeach ?>
+        <?php endforeach ?>
+    <?php endif ?>
+<form action="/users/auth" method="post">
+  <label>
+      <input type="text" placeholder='enter your email' name="email">
+  </label>
+      <input type="submit" value="login">
+</form>
